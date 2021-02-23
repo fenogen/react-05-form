@@ -5,25 +5,83 @@ import "./TodoList.css";
 
 
 class TodoList extends Component {
+
+  state= {
+    todoList: [],
+    type: "all"
+  }
+
+
+//----------------------------> Добавляет
+  addToList = (todo) => {
+    this.setState((prev) =>({
+    todoList: [...prev.todoList, todo],
+  }))
+  }
+
+  removeFormList = (id) => {
+    this.setState({
+      todoList: this.state.todoList.filter((todo) => todo.id !== id),
+    })
+  }
+
+  editStatusTask = (id) => {
+    this.setState({
+      todoList: this.state.todoList.map(todo => (
+        todo.id === id ? {...todo, status: !todo.status} : todo
+      ),)
+  });
+  }
+
+
+  changeFilter = ({target}) => {
+    const type = target.dataset.filter;
+    this.setState ({
+      type,
+    })
+  }
+
+  filterTask =() => {
+    switch(this.state.type) {
+      case "all":
+        return this.state.todoList;
+      case "completed":
+          return this.state.todoList.filter(todo => todo.status === true);
+      case "uncompleted" : 
+          return this.state.todoList.filter(todo => todo.status === false);
+      default:
+            return this.state.todoList;
+    }
+  }
+
+
   
   render(){
+    const {todoList} = this.state
+
     return(
       <div className="TodoList">
       <h1 className="TodoList__title">Todo List</h1>
-      <Form />
+      <Form addToList={this.addToList}/>
       <ul className="TodoList__todos">
-          <li >
-            <Todo />
+        {/* перед до фильтра был todoList */}
+        {this.filterTask().map((todo) => (
+          <li key={todo.id}>
+            <Todo
+            {...todo} 
+            removeFormList={this.removeFormList} 
+            editStatusTask={this.editStatusTask}/>
           </li>
+        ))}
       </ul>
       <div className="filters">
-        <button  className="NewTodoForm__submit" data-filter="all">
+        <button  onClick={this.changeFilter} className="NewTodoForm__submit" data-filter="all">
           All
         </button>
-        <button  className="NewTodoForm__submit" data-filter="completed">
+        <button  onClick={this.changeFilter} className="NewTodoForm__submit" data-filter="completed">
           Completed
         </button>
-        <button  className="NewTodoForm__submit" data-filter="uncompleted">
+        <button  onClick={this.changeFilter} className="NewTodoForm__submit" data-filter="uncompleted">
           Uncompleted
         </button>
       </div>
